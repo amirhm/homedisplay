@@ -8,9 +8,11 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 add_executable(test
-  test.c
+  main.c
+  scd4x.c
+  st7789.c
 )
-target_link_libraries(test pico_stdlib hardware_adc hardware_gpio hardware_pwm hardware_spi)
+target_link_libraries(test pico_stdlib hardware_adc hardware_gpio hardware_pwm hardware_spi hardware_i2c)
 pico_enable_stdio_usb(test 0)
 pico_enable_stdio_uart(test 1)
 
