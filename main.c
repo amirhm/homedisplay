@@ -10,6 +10,11 @@
 
 #include "scd4x.h"
 #include "st7789.h"
+#include "ntp_client.h"
+
+
+#define WIFI_SSID "Salt_2GHz_28DB5E_2.4GHz_2.4GHz"
+#define WIFI_PASSWORD "aMirhm2153"
 
 typedef struct SensorData{
 	uint16_t co2_raw;
@@ -46,6 +51,22 @@ int init_spi(){
 
 int init_peripherals(){
 	stdio_init_all();
+/*
+	if (cyw43_arch_init()) {
+        printf("failed to initialise\n");
+        return 1;
+    }
+
+    cyw43_arch_enable_sta_mode();
+
+    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
+        printf("failed to connect\n");
+        return 1;
+    }
+    run_ntp_test();
+    cyw43_arch_deinit();
+
+*/
 	init_gpio();
 	init_spi();
 	init_i2c();
