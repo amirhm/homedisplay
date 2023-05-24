@@ -82,11 +82,13 @@ int sensor_task(){
 static int display_info_update(){
 	char string[20];
 	uint16_t fcolor = color565(127, 127, 127);
+	uint16_t rcolor = color565(135, 43, 43);
+	uint16_t gcolor = color565(34, 179, 34);
 	sprintf(string, "CO2: %d", weather.co2_raw);
-	write_string(display.ML, 2 , string, fcolor);
+	write_string(display.ML, 2 , string, (weather.co2_raw < 1200)? gcolor: rcolor);
 	sprintf(string, "TMP: %2.1f", weather.temperature);
 	write_string(display.ML, 4 , string, fcolor);
-	sprintf(string, "RH: %2.1f%", weather.humidity);
+	sprintf(string, "RH: %2.1f%%", weather.humidity);
 	write_string(display.ML, 6 , string, fcolor);
 	display.update_weather = false;
 }
