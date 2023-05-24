@@ -7,6 +7,14 @@
 #define FRMHEIGHT 300
 
 
+typedef struct DisplayInfo{
+	bool update_weather;
+	bool update;
+	int LineHeight;
+	int ML;
+} DisplayInfo;
+DisplayInfo display;
+
 void init_gpio();
 int lcd_set_raset(uint16_t raset_ys, uint16_t raset_ye);
 int lcd_set_caset(uint16_t caset_xs, uint16_t caset_xe);
