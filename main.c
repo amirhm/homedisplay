@@ -11,12 +11,11 @@
 #include "scd4x.h"
 #include "st7789.h"
 
-
 typedef struct SensorData{
 	uint16_t co2_raw;
 	uint16_t temperature_raw;
 	uint16_t humidity_raw;
-	float temperature
+	float temperature;
 	float humidity;
 } SensorData;
 SensorData weather;
@@ -72,29 +71,30 @@ int sensor_task(){
 	if (get_status_ready())
 	{
 		status = read_measurements(&weather.co2_raw, &weather.temperature_raw, &weather.humidity_raw);
-		display.updated = true;
+		display.update = true;
 		display.update_weather = true;
 	}
 	if(!status){
-		temperature = -45 + (float)(175 * weather.temperature_raw) / (65536.0);
-		rhumid = (float)(100 * weather.humidity_raw) / (65536.0);
-		sleep_ms(10);
+		weather.temperature = -45 + (float)(175 * weather.temperature_raw) / (65536.0);
+		weather.humidity = (float)(100 * weather.humidity_raw) / (65536.0);
 	}
 }
 static int display_info_update(){
-	write_number(display.ML, display.LineHeight, weather.co2);
+	char string[10];
+	sprintf(string, "CO2: %d", weather.co2_raw);
+	write_number(display.ML, display.LineHeight, weather.co2_raw);
 	write_number(display.ML, display.LineHeight * 2, (uint16_t) weather.temperature);
 	write_number(display.ML, display.LineHeight * 3, (uint16_t) weather.humidity);
 	display.update_weather = false;
 }
 static int display_task(){
-	if (display.updated){
+	if (display.update){
 		fill_display(color565(0,0,0));
 	}
 	if (display.update_weather){
 		display_info_update();
 	}
-	if (display.updated){
+	if (display.update){
 		update_display();
 		display.update = false;
 	}

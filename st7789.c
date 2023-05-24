@@ -5,12 +5,6 @@ const int rst = 21;
 const int dc = 20;
 const int blk = 15;
 
-typedef struct DisplayInfo{
-	bool update_weather;
-	int LineHeight;
-	int ML;
-} DisplayInfo;
-DisplayInfo display;
 
 void init_gpio(){
 
