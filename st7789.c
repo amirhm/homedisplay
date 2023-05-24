@@ -5,6 +5,13 @@ const int rst = 21;
 const int dc = 20;
 const int blk = 15;
 
+typedef struct DisplayInfo{
+	bool update_weather;
+	int LineHeight;
+	int ML;
+} DisplayInfo;
+DisplayInfo display;
+
 void init_gpio(){
 
 	gpio_init(dc);
@@ -119,6 +126,8 @@ int init_display(){
 	lcd_set_caset(0, FRMWIDTH);
 	lcd_set_raset(0, FRMHEIGHT);
 	write_register(MADCTL, 0);
+	display.ML = 10;
+	display.LineHeight = 50;
 }
 
 
