@@ -24,4 +24,4 @@ int fill_display_gradient();
 int write_character(uint16_t x, uint16_t y, uint16_t color);
 int update_display();
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
-int write_number(uint16_t x, uint16_t y, uint16_t number);
+int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor);

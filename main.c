@@ -80,16 +80,19 @@ int sensor_task(){
 	}
 }
 static int display_info_update(){
-	char string[10];
+	char string[20];
+	uint16_t fcolor = color565(127, 127, 127);
 	sprintf(string, "CO2: %d", weather.co2_raw);
-	write_number(display.ML, display.LineHeight, weather.co2_raw);
-	write_number(display.ML, display.LineHeight * 2, (uint16_t) weather.temperature);
-	write_number(display.ML, display.LineHeight * 3, (uint16_t) weather.humidity);
+	write_string(display.ML, 2 , string, fcolor);
+	sprintf(string, "TMP: %2.1f", weather.temperature);
+	write_string(display.ML, 4 , string, fcolor);
+	sprintf(string, "RH: %2.1f%", weather.humidity);
+	write_string(display.ML, 6 , string, fcolor);
 	display.update_weather = false;
 }
 static int display_task(){
 	if (display.update){
-		fill_display(color565(0,0,0));
+		fill_display(color565(0, 0, 0));
 	}
 	if (display.update_weather){
 		display_info_update();

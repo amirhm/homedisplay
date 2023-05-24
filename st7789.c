@@ -1,5 +1,5 @@
 #include "st7789.h"
-#include "Ubuntu"
+#include "Ubuntu.h"
 
 const int rst = 21;
 const int dc = 20;
@@ -121,7 +121,7 @@ int init_display(){
 	lcd_set_raset(0, FRMHEIGHT);
 	write_register(MADCTL, 0);
 	display.ML = 10;
-	display.LineHeight = 50;
+	display.LineHeight = 32;
 }
 
 
@@ -151,7 +151,7 @@ int fill_display_gradient(){
 }
 
 extern const unsigned char Ubuntu[9124];
-static void render_font(uint16_t* img, int k, int x , int y ){
+static void render_font(uint16_t* img, int k, int x , int y , uint16_t color){
     int offset = 4 + k * 96;
     const int h = 32;
     const int w = 24;
@@ -159,18 +159,15 @@ static void render_font(uint16_t* img, int k, int x , int y ){
     for(int row=y; row < y + h; row++){
         for(int col=0; col < w / 8; col++){
             temp = Ubuntu[offset + ((row  - y) * 3) + (col)];
-            img[(row * 240) + col * 8 + 0 + x] = (temp >> 7) & 0x01;
-            img[(row * 240) + col * 8 + 1 + x] = (temp >> 6) & 0x01;
-            img[(row * 240) + col * 8 + 2 + x] = (temp >> 5) & 0x01;
-            img[(row * 240) + col * 8 + 3 + x] = (temp >> 4) & 0x01;
-            
-            img[(row * 240) + col * 8 + 4 + x] = (temp >> 3) & 0x01;
-            img[(row * 240) + col * 8 + 5 + x] = (temp >> 2) & 0x01;
-            img[(row * 240) + col * 8 + 6 + x] = (temp >> 1) & 0x01;
-            img[(row * 240) + col * 8 + 7 + x] = (temp >> 0) & 0x01;
-        }
-    }
+			for (int j = 0; j < 8; j++){
+				if ((temp >> j) & 0x01){
+					img[(row * 240) + col * 8 + (7 - j) + x] = color;
+				}
+			}
+		}
+	}
 }
+#if 0
 int write_character(uint16_t x, uint16_t y, uint16_t number)
 {
 	uint8_t w = 25;
@@ -185,7 +182,7 @@ int write_character(uint16_t x, uint16_t y, uint16_t number)
 		FRMBUF[idx] = color;
 	}
 }
-
+#endif
 int update_display(){
 	return write_buffer(RAMWR, (uint8_t*) FRMBUF, sizeof(FRMBUF));
 }
@@ -203,10 +200,10 @@ int write_number(uint16_t x, uint16_t y, uint16_t number){
 	return 0;
 
 }
-static int write_string(uint16_t x, uint16_t y, char* string){
+int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor){
 	int idx = 0;
 	while(*string != '\0'){
-		render_font(FRMBUF, (*string) - 32, x + 24 * idx, 32 * y);
+		render_font(FRMBUF, (*string++) - 32, 24 * idx + x, 32 * y, fcolor);
 		if(idx++ > 9){break;}
 	}
 	return 0;
