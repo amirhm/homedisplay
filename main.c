@@ -7,11 +7,14 @@
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
 #include "pico/binary_info.h"
-
+#include "hardware/rtc.h"
+#include "pico/util/datetime.h"
 #include "scd4x.h"
 #include "st7789.h"
 #include "ntp_client.h"
 
+
+#define TIME_START 1673823600
 
 #define WIFI_SSID "Salt_2GHz_28DB5E_2.4GHz_2.4GHz"
 #define WIFI_PASSWORD "aMirhm2153"
@@ -25,7 +28,13 @@ typedef struct SensorData{
 } SensorData;
 SensorData weather;
 
+typedef struct DayCnt{
+	int week;
+	int day;
+}DayCnt;
 
+DayCnt day_cnt;
+bool rtc_time_updated;
 int init_i2c(){
 	i2c_init(i2c_default, 100 * 1000);
     gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
@@ -86,13 +95,52 @@ int init_sensors(){
 	start_measurements();
 }
 
+int counter_task(){
+	if(time_updated){
+		time_t duration = (utc_time - 1673737200) / 3600 / 24;
+		day_cnt.week = duration / 7;
+		day_cnt.day = duration % 7;
+	}
+}
 
+// Start on Friday 5th of June 2020 15:45:00
+datetime_t t = {
+		.year  = 2020,
+		.month = 06,
+		.day   = 05,
+		.dotw  = 5, // 0 is Sunday, so 5 is Friday
+		.hour  = 15,
+		.min   = 45,
+		.sec   = 00
+};
+
+int init_rtc(){
+	// Start the RTC
+	rtc_init();
+	rtc_time_updated = false;
+}
+
+int rtc_task(){
+	if(time_updated){
+        struct tm *utc = gmtime(&utc_time);
+		t.year = utc->tm_year + 1900;
+		t.month = utc->tm_mon + 1;
+		t.day = utc->tm_mday;
+		t.hour = utc->tm_hour;
+		t.min = utc->tm_min;
+		t.sec = utc->tm_sec;
+		time_updated = false;
+		rtc_set_datetime(&t);
+	}
+	rtc_get_datetime(&t);
+	display.update_time = true;
+	return 0;
+}
 int sensor_task(){
 	int status = 0;
 	if (get_status_ready())
 	{
 		status = read_measurements(&weather.co2_raw, &weather.temperature_raw, &weather.humidity_raw);
-		display.update = true;
 		display.update_weather = true;
 	}
 	if(!status){
@@ -100,27 +148,42 @@ int sensor_task(){
 		weather.humidity = (float)(100 * weather.humidity_raw) / (65536.0);
 	}
 }
+static int display_time_update(){
+	char string[20];
+	uint16_t fcolor = color565(127, 127, 127);
+	uint16_t rcolor = color565(135, 43, 43);
+	uint16_t gcolor = color565(34, 179, 34);
+	struct tm *utc = gmtime(&utc_time);
+		//sprintf("%02d/%02d/%04d\n", utc_time->tm_mday, utc_time->tm_mon + 1, utc_time->tm_year + 1900);
+	sprintf(string, "%02d:%02d:%02d", t.hour , t.min, t.sec);
+	write_string(display.ML, 1 , string, fcolor);
+	rtc_time_updated = true;
+
+	sprintf(string, "%02dW %dD", day_cnt.week, day_cnt.day);
+	write_string(display.ML, 7 , string, fcolor);
+	display.update_time = false;
+}
 static int display_info_update(){
 	char string[20];
 	uint16_t fcolor = color565(127, 127, 127);
 	uint16_t rcolor = color565(135, 43, 43);
 	uint16_t gcolor = color565(34, 179, 34);
+	printf("CO2: %d\n", weather.co2_raw);
 	sprintf(string, "CO2: %d", weather.co2_raw);
-	write_string(display.ML, 2 , string, (weather.co2_raw < 1200)? gcolor: rcolor);
+	write_string(display.ML, 3 , string, (weather.co2_raw < 1200)? gcolor: rcolor);
 	sprintf(string, "TMP: %2.1f", weather.temperature);
 	write_string(display.ML, 4 , string, fcolor);
 	sprintf(string, "RH: %2.1f%%", weather.humidity);
-	write_string(display.ML, 6 , string, fcolor);
+	write_string(display.ML, 5 , string, fcolor);
 	display.update_weather = false;
 }
 static int display_task(){
+	display.update = display.update_weather || display.update_time;
 	if (display.update){
 		fill_display(color565(0, 0, 0));
-	}
-	if (display.update_weather){
 		display_info_update();
-	}
-	if (display.update){
+		display_time_update();
+
 		update_display();
 		display.update = false;
 	}
@@ -130,13 +193,20 @@ int main(){
 	init_peripherals();
 	init_display();
 	init_sensors();
-
+	init_wifi();
+	init_rtc();
 	fill_display(color565(0, 0, 0));
 
 	while (true){
 		sensor_task();
 		display_task();
-	}
+		ntp_task();
+		counter_task();
+		rtc_task();
+		// printf("%02d/%02d/%04d\n", utc_time->tm_mday, utc_time->tm_mon + 1, utc_time->tm_year + 1900);
+		// printf("%02d:%02d:%02d\n", utc_time->tm_hour, utc_time->tm_min, utc_time->tm_sec);
+		sleep_ms(100);
+}
 	printf("Done.\n");
 	return 0;
 }

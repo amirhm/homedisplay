@@ -5,10 +5,12 @@
 #include "lwip/pbuf.h"
 #include "lwip/udp.h"
 #include "lwipopts.h"
+#include <time.h>
 #define PICO_CYW43_ARCH_POLL 1
 void run_ntp_test(void) ;
 int init_wifi();
 int deinit_wifi();
 extern bool time_updated;
-extern struct tm *utc_time;
+extern time_t utc_time;
+int ntp_task(void);
 
