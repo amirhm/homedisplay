@@ -9,6 +9,8 @@
 
 typedef struct DisplayInfo{
 	bool update_weather;
+	bool update_time;
+	bool update_cnt;
 	bool update;
 	int LineHeight;
 	int ML;

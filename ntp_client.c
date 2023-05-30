@@ -8,7 +8,7 @@
 #include <time.h>
 #include "ntp_client.h"
 bool time_updated;
-struct tm *utc_time;
+time_t utc_time;
 
 typedef struct NTP_T_ {
     ip_addr_t ntp_server_address;
@@ -24,15 +24,20 @@ typedef struct NTP_T_ {
 #define NTP_DELTA 2208988800 // seconds between 1 Jan 1900 and 1 Jan 1970
 #define NTP_TEST_TIME (30 * 1000)
 #define NTP_RESEND_TIME (10 * 1000)
+#define TZ_BERN 3600 * 2
+NTP_T *state;
 
 // Called with results of operation
 static void ntp_result(NTP_T* state, int status, time_t *result) {
     if (status == 0 && result) {
         time_updated = true;
-        struct tm *utc = gmtime(result);
-        utc_time = gmtime(result);
-        printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
-               utc->tm_hour, utc->tm_min, utc->tm_sec);
+        //struct tm *utc = gmtime(result);
+        *result += TZ_BERN;
+        utc_time = *result;
+        printf("%ld\n", (long int) *result);
+        //utc_time = gmtime(result);
+        //printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
+        //       utc->tm_hour, utc->tm_min, utc->tm_sec);
     }
 
     if (state->ntp_resend_alarm > 0) {
@@ -118,6 +123,7 @@ static NTP_T* ntp_init(void) {
         return NULL;
     }
     udp_recv(state->ntp_pcb, ntp_recv, state);
+    time_updated = false;
     return state;
 }
 
@@ -176,13 +182,14 @@ int init_wifi(){
         printf("failed to connect\n");
         return 1;
     }
+    state = ntp_init();
     return 0;
 }
 
 int ntp_task(void) {
-    NTP_T *state = ntp_init();
+    // NTP_T *state = ntp_init();
     if (!state)
-        return;
+        return -1;
     if (absolute_time_diff_us(get_absolute_time(), state->ntp_test_time) < 0 && !state->dns_request_sent) {
         // Set alarm in case udp requests are lost
         state->ntp_resend_alarm = add_alarm_in_ms(NTP_RESEND_TIME, ntp_failed_handler, state, true);
@@ -216,7 +223,8 @@ int ntp_task(void) {
     // work you might be doing.
     sleep_ms(1000);
 #endif
-    free(state);
+    // free(state);
+    return 0;
 }
 
 int deinit_wifi(){
