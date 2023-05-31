@@ -151,17 +151,25 @@ int fill_display_gradient(){
 }
 
 extern const unsigned char Ubuntu[9124];
-static void render_font(uint16_t* img, int k, int x , int y , uint16_t color){
+static void render_font(uint16_t* img, int k, int x , int y , uint16_t color, int ds){
     int offset = 4 + k * 96;
     const int h = 32;
     const int w = 24;
+	uint16_t rcolor = color565(135, 43, 43);
+	color = (k == 94) ? rcolor : color;
     unsigned char temp;
+	int row_s = 0;
+	int col_s = 0;
     for(int row=y; row < y + h; row++){
         for(int col=0; col < w / 8; col++){
             temp = Ubuntu[offset + ((row  - y) * 3) + (col)];
+
 			for (int j = 0; j < 8; j++){
 				if ((temp >> j) & 0x01){
-					img[(row * 240) + col * 8 + (7 - j) + x] = color;
+					// img[(row * 240) + col * 8 + (7 - j) + x] = color;
+					row_s = row / ds;
+					col_s = (col * 8 + (7 - j)) / ds; 
+					img[(row_s * 240) + col_s + x] = color;
 				}
 			}
 		}
@@ -200,11 +208,13 @@ int write_number(uint16_t x, uint16_t y, uint16_t number){
 	return 0;
 
 }
-int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor){
+int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds){
 	int idx = 0;
+	int colw = 24 / ds;
+	int roww = 32 / ds;
 	while(*string != '\0'){
-		render_font(FRMBUF, (*string++) - 32, 24 * idx + x, 32 * y, fcolor);
-		if(idx++ > 9){break;}
+		render_font(FRMBUF, (*string++) - 32, colw * idx + x, roww * y, fcolor, ds);
+		if(idx++ > (9 * ds)){break;}
 	}
 	return 0;
 }
