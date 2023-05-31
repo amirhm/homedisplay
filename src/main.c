@@ -48,7 +48,7 @@ int init_i2c(){
 
 
 int init_spi(){
-	spi_init(spi_default, 5 * 1000 * 1000);
+	spi_init(spi_default, 24 * 1000 * 1000);
 //	gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
 	gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
 	gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
@@ -167,6 +167,16 @@ static int display_task(){
 	display.update = display.update_weather || display.update_time;
 	if (display.update){
 		fill_display(color565(0, 0, 0));
+		bool day = false;
+		if ((t.hour > 8) && (t.hour < 20)){
+			day = true;
+		}
+		if(day){
+			display_brightness(0x15000);
+		}
+		else{
+			display_brightness(0x100);
+		}
 		display_info_update();
 		display_time_update();
 
