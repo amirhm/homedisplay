@@ -7,18 +7,35 @@ const int blk = 15;
 
 
 void init_gpio(){
+	gpio_set_function(blk, GPIO_FUNC_PWM);
+	// gpio_set_function(LED_PIN, GPIO_FUNC_PWM);
+
+    uint sliceNum = pwm_gpio_to_slice_num(blk);
+    pwm_config config = pwm_get_default_config();
+    pwm_init(sliceNum, &config, true);
+	
+	
+	// Set the PWM running
+	// pwm_set_enabled(slice_num, true);
 
 	gpio_init(dc);
 	gpio_init(rst);
-	gpio_init(blk);
+	//gpio_init(blk);
 
 	gpio_set_dir(rst, GPIO_OUT);
 	gpio_set_dir(dc, GPIO_OUT);
-	gpio_set_dir(blk, GPIO_OUT);
+	//gpio_set_dir(blk, GPIO_OUT);
 
 	gpio_put(rst, 1);
 	gpio_put(dc, 0);
-	gpio_put(blk, 1);
+	//gpio_put(blk, 1);
+	pwm_set_gpio_level(blk, 0x7fff);
+}
+
+
+int display_brightness(int value){
+	pwm_set_gpio_level(blk, value);
+	return 0;
 }
 static void write_register(uint8_t reg, uint8_t data) {
 	gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 0);  // Active low

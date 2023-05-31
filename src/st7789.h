@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
+#include "hardware/pwm.h"
+
 
 #define FRMWIDTH 240
 #define FRMHEIGHT 300
@@ -26,4 +28,5 @@ int fill_display_gradient();
 int write_character(uint16_t x, uint16_t y, uint16_t color);
 int update_display();
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
-int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor);
+int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds);
+int display_brightness(int value);
