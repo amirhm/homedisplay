@@ -18,7 +18,8 @@
 
 #define WIFI_SSID "Salt_2GHz_28DB5E_2.4GHz_2.4GHz"
 #define WIFI_PASSWORD "aMirhm2153"
-
+const char* month_str[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+const char* day_str[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 typedef struct SensorData{
 	uint16_t co2_raw;
 	uint16_t temperature_raw;
@@ -34,6 +35,7 @@ typedef struct DayCnt{
 }DayCnt;
 
 DayCnt day_cnt;
+
 bool rtc_time_updated;
 int init_i2c(){
 	i2c_init(i2c_default, 100 * 1000);
@@ -60,22 +62,6 @@ int init_spi(){
 
 int init_peripherals(){
 	stdio_init_all();
-/*
-	if (cyw43_arch_init()) {
-        printf("failed to initialise\n");
-        return 1;
-    }
-
-    cyw43_arch_enable_sta_mode();
-
-    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
-        printf("failed to connect\n");
-        return 1;
-    }
-    run_ntp_test();
-    cyw43_arch_deinit();
-
-*/
 	init_gpio();
 	init_spi();
 	init_i2c();
@@ -153,13 +139,14 @@ static int display_time_update(){
 	uint16_t rcolor = color565(135, 43, 43);
 	uint16_t gcolor = color565(34, 179, 34);
 	struct tm *utc = gmtime(&utc_time);
-		//sprintf("%02d/%02d/%04d\n", utc_time->tm_mday, utc_time->tm_mon + 1, utc_time->tm_year + 1900);
-	sprintf(string, "%02d:%02d:%02d", t.hour , t.min, t.sec);
-	write_string(display.ML, 1 , string, fcolor);
+	sprintf(string, "  %s %02d %s", day_str[t.dotw], t.day , month_str[t.month - 1]);
+	write_string(display.ML, 6 , string, fcolor, 2);
+	sprintf(string, "      %02d:%02d:%02d", t.hour , t.min, t.sec);
+	write_string(display.ML, 3 , string, fcolor, 2);
 	rtc_time_updated = true;
 
-	sprintf(string, "%02dW %dD", day_cnt.week, day_cnt.day);
-	write_string(display.ML, 7 , string, fcolor);
+	sprintf(string, " %02dW %dD ~", day_cnt.week, day_cnt.day);
+	write_string(display.ML, 7 , string, fcolor, 1);
 	display.update_time = false;
 }
 static int display_info_update(){
@@ -169,11 +156,11 @@ static int display_info_update(){
 	uint16_t gcolor = color565(34, 179, 34);
 	printf("CO2: %d\n", weather.co2_raw);
 	sprintf(string, "CO2: %d", weather.co2_raw);
-	write_string(display.ML, 3 , string, (weather.co2_raw < 1200)? gcolor: rcolor);
+	write_string(display.ML, 3 , string, (weather.co2_raw < 1200)? gcolor: rcolor, 1);
 	sprintf(string, "TMP: %2.1f", weather.temperature);
-	write_string(display.ML, 4 , string, fcolor);
+	write_string(display.ML, 4 , string, fcolor, 1);
 	sprintf(string, "RH: %2.1f%%", weather.humidity);
-	write_string(display.ML, 5 , string, fcolor);
+	write_string(display.ML, 5 , string, fcolor, 1);
 	display.update_weather = false;
 }
 static int display_task(){
