@@ -96,12 +96,10 @@ int init_sensors(){
 }
 
 int counter_task(){
-	if(time_updated){
-		time_t duration = (utc_time - 1673737200) / 3600 / 24;
+	time_t duration = (utc_time - 1673740800) / 3600 / 24;
 		day_cnt.week = duration / 7;
 		day_cnt.day = duration % 7;
 	}
-}
 
 // Start on Friday 5th of June 2020 15:45:00
 datetime_t t = {
@@ -126,6 +124,7 @@ int rtc_task(){
 		t.year = utc->tm_year + 1900;
 		t.month = utc->tm_mon + 1;
 		t.day = utc->tm_mday;
+		t.dotw = utc->tm_wday;
 		t.hour = utc->tm_hour;
 		t.min = utc->tm_min;
 		t.sec = utc->tm_sec;
