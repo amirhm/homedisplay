@@ -35,7 +35,6 @@ static void ntp_result(NTP_T* state, int status, time_t *result) {
         *result += TZ_BERN;
         utc_time = *result;
         printf("%ld\n", (long int) *result);
-        //utc_time = gmtime(result);
         //printf("got ntp response: %02d/%02d/%04d %02d:%02d:%02d\n", utc->tm_mday, utc->tm_mon + 1, utc->tm_year + 1900,
         //       utc->tm_hour, utc->tm_min, utc->tm_sec);
     }
@@ -230,23 +229,3 @@ int ntp_task(void) {
 int deinit_wifi(){
     cyw43_arch_deinit();
 }
-#if 0
-int main() {
-    stdio_init_all();
-
-    if (cyw43_arch_init()) {
-        printf("failed to initialise\n");
-        return 1;
-    }
-
-    cyw43_arch_enable_sta_mode();
-
-    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASSWORD, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
-        printf("failed to connect\n");
-        return 1;
-    }
-    run_ntp_test();
-    cyw43_arch_deinit();
-   return 0;
-}
-#endif
