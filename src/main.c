@@ -83,9 +83,9 @@ int init_sensors(){
 
 int counter_task(){
 	time_t duration = (utc_time - 1673740800) / 3600 / 24;
-		day_cnt.week = duration / 7;
-		day_cnt.day = duration % 7;
-	}
+	day_cnt.week = duration / 7;
+	day_cnt.day = duration % 7;
+}
 
 // Start on Friday 5th of June 2020 15:45:00
 datetime_t t = {
@@ -192,16 +192,15 @@ int main(){
 	init_wifi();
 	init_rtc();
 	fill_display(color565(0, 0, 0));
-
+	ntp_task();
 	while (true){
 		sensor_task();
 		display_task();
-		ntp_task();
 		counter_task();
 		rtc_task();
 		// printf("%02d/%02d/%04d\n", utc_time->tm_mday, utc_time->tm_mon + 1, utc_time->tm_year + 1900);
 		// printf("%02d:%02d:%02d\n", utc_time->tm_hour, utc_time->tm_min, utc_time->tm_sec);
-		sleep_ms(100);
+		sleep_ms(2000);
 }
 	printf("Done.\n");
 	return 0;
