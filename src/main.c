@@ -16,8 +16,8 @@
 
 #define TIME_START 1673823600
 
-#define WIFI_SSID "Salt_2GHz_28DB5E_2.4GHz_2.4GHz"
-#define WIFI_PASSWORD "aMirhm2153"
+//#define WIFI_SSID "Salt_2GHz_28DB5E_2.4GHz_2.4GHz"
+//#define WIFI_PASSWORD "aMirhm2153"
 const char* month_str[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 const char* day_str[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 typedef struct SensorData{
@@ -80,7 +80,7 @@ int init_peripherals(){
 	init_gpio();
 	init_spi();
 	init_i2c();
-	rcolor = color565(135, 43, 43);
+	rcolor = color565(0xe6,0x39, 0x46);
 	gcolor = color565(34, 179, 34);
 	dcfg.day_background=color565(220, 220, 220);
 	dcfg.day_fontcolor=color565(127, 127, 127);
