@@ -5,6 +5,9 @@
 #define CRC8_INIT 0xFF
 
 
+const int addr = 0x62;
+const int rxbuflen = 16;
+
 uint8_t generate_crc(const uint8_t* data, uint16_t count);
 
 int set_sensor_altitude(uint16_t value);

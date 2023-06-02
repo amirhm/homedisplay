@@ -7,10 +7,11 @@
 #include "lwipopts.h"
 #include <time.h>
 #define PICO_CYW43_ARCH_POLL 1
-void run_ntp_test(void) ;
+
 int init_wifi();
 int deinit_wifi();
+int ntp_task(void);
+void run_ntp_test(void) ;
+
 extern bool time_updated;
 extern time_t utc_time;
-int ntp_task(void);
-
