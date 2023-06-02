@@ -29,6 +29,19 @@ typedef struct SensorData{
 } SensorData;
 SensorData weather;
 
+
+typedef struct DisplayConfig{
+	uint16_t day_background;
+	uint16_t day_fontcolor;
+
+	uint16_t day_brightness;
+	uint16_t night_brightness;
+	uint16_t night_background;
+	uint16_t night_fontcolor;
+} DisplayConfig;
+
+DisplayConfig dcfg;
+
 typedef struct DayCnt{
 	int week;
 	int day;
@@ -36,6 +49,8 @@ typedef struct DayCnt{
 
 DayCnt day_cnt;
 
+uint16_t rcolor;
+uint16_t gcolor;
 bool rtc_time_updated;
 int init_i2c(){
 	i2c_init(i2c_default, 100 * 1000);
@@ -65,6 +80,14 @@ int init_peripherals(){
 	init_gpio();
 	init_spi();
 	init_i2c();
+	rcolor = color565(135, 43, 43);
+	gcolor = color565(34, 179, 34);
+	dcfg.day_background=color565(220, 220, 220);
+	dcfg.day_fontcolor=color565(127, 127, 127);
+	dcfg.night_background=color565(0,0,0);
+	dcfg.night_fontcolor=color565(127, 127, 127);
+	dcfg.day_brightness=0xf000;
+	dcfg.night_brightness=0x100;
 	return 0;
 }
 
@@ -81,12 +104,6 @@ int init_sensors(){
 	start_measurements();
 }
 
-int counter_task(){
-	time_t duration = (utc_time - 1673740800) / 3600 / 24;
-	day_cnt.week = duration / 7;
-	day_cnt.day = duration % 7;
-}
-
 // Start on Friday 5th of June 2020 15:45:00
 datetime_t t = {
 		.year  = 2020,
@@ -98,15 +115,28 @@ datetime_t t = {
 		.sec   = 00
 };
 
+int counter_task(){
+	time_t _utc_time;
+	struct tm utc ={.tm_year=t.year - 1900, .tm_mon=t.month -1, .tm_mday=t.day, .tm_wday=t.dotw, .tm_hour=t.hour, .tm_min=t.min, .tm_sec=t.sec, .tm_isdst=0};
+	_utc_time = mktime(&utc);
+	time_t duration = (_utc_time - 1673740800) / 3600 / 24;
+	day_cnt.week = duration / 7;
+	day_cnt.day = duration % 7;
+}
+
+
 int init_rtc(){
 	// Start the RTC
 	rtc_init();
 	rtc_time_updated = false;
+	day_cnt.week = 0;
+	day_cnt.day = 0;
 }
 
+bool day = false;
 int rtc_task(){
 	if(time_updated){
-        struct tm *utc = gmtime(&utc_time);
+		struct tm *utc = gmtime(&utc_time);
 		t.year = utc->tm_year + 1900;
 		t.month = utc->tm_mon + 1;
 		t.day = utc->tm_mday;
@@ -117,7 +147,11 @@ int rtc_task(){
 		time_updated = false;
 		rtc_set_datetime(&t);
 	}
+
 	rtc_get_datetime(&t);
+
+	day =  ((t.hour > 8) && (t.hour < 20)) ? true: false;
+
 	display.update_time = true;
 	return 0;
 }
@@ -135,9 +169,8 @@ int sensor_task(){
 }
 static int display_time_update(){
 	char string[20];
-	uint16_t fcolor = color565(127, 127, 127);
-	uint16_t rcolor = color565(135, 43, 43);
-	uint16_t gcolor = color565(34, 179, 34);
+	uint16_t fcolor = (day) ? dcfg.day_fontcolor: dcfg.night_fontcolor;
+
 	struct tm *utc = gmtime(&utc_time);
 	sprintf(string, "  %s %02d %s", day_str[t.dotw], t.day , month_str[t.month - 1]);
 	write_string(display.ML, 6 , string, fcolor, 2);
@@ -151,9 +184,7 @@ static int display_time_update(){
 }
 static int display_info_update(){
 	char string[20];
-	uint16_t fcolor = color565(127, 127, 127);
-	uint16_t rcolor = color565(135, 43, 43);
-	uint16_t gcolor = color565(34, 179, 34);
+	uint16_t fcolor = (day) ? dcfg.day_fontcolor: dcfg.night_fontcolor;
 	printf("CO2: %d\n", weather.co2_raw);
 	sprintf(string, "CO2: %d", weather.co2_raw);
 	write_string(display.ML, 3 , string, (weather.co2_raw < 1200)? gcolor: rcolor, 1);
@@ -166,19 +197,11 @@ static int display_info_update(){
 static int display_task(){
 	display.update = display.update_weather || display.update_time;
 	if (display.update){
-		fill_display(color565(0, 0, 0));
-		bool day = false;
-		if ((t.hour > 8) && (t.hour < 20)){
-			day = true;
-		}
-		if(day){
-			display_brightness(0x15000);
-		}
-		else{
-			display_brightness(0x100);
-		}
+		fill_display((day) ? dcfg.day_background: dcfg.night_background);
 		display_info_update();
 		display_time_update();
+
+		display_brightness((day) ? dcfg.day_brightness: dcfg.night_brightness);
 
 		update_display();
 		display.update = false;
@@ -198,10 +221,7 @@ int main(){
 		display_task();
 		counter_task();
 		rtc_task();
-		// printf("%02d/%02d/%04d\n", utc_time->tm_mday, utc_time->tm_mon + 1, utc_time->tm_year + 1900);
-		// printf("%02d:%02d:%02d\n", utc_time->tm_hour, utc_time->tm_min, utc_time->tm_sec);
-		sleep_ms(2000);
-}
-	printf("Done.\n");
+		sleep_ms(1000);
+	}
 	return 0;
 }

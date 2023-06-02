@@ -21,6 +21,7 @@ target_link_libraries(test pico_stdlib
         hardware_i2c 
         hardware_rtc
         pico_cyw43_arch_lwip_threadsafe_background)
+
 pico_enable_stdio_usb(test 0)
 pico_enable_stdio_uart(test 1)
 
