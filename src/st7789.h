@@ -8,6 +8,19 @@
 #define FRMWIDTH 240
 #define FRMHEIGHT 300
 
+typedef enum CMD{
+	SWRESET     = 0x01,
+	INVON = 0x21,
+	INVOFF = 0x20,
+	SLPOUT = 0x11,
+	DISPON = 0x29,
+	CASET = 0x2a,
+	RASET = 0x2b,
+	TEON = 0x35,
+	MADCTL = 0x36,
+	COLMOD = 0x3A,
+	RAMWR = 0x2c
+} CMD;
 
 typedef struct DisplayInfo{
 	bool update_weather;
@@ -17,6 +30,7 @@ typedef struct DisplayInfo{
 	int LineHeight;
 	int ML;
 } DisplayInfo;
+
 DisplayInfo display;
 
 void init_gpio();

@@ -16,8 +16,6 @@
 
 #define TIME_START 1673823600
 
-//#define WIFI_SSID "Salt_2GHz_28DB5E_2.4GHz_2.4GHz"
-//#define WIFI_PASSWORD "aMirhm2153"
 const char* month_str[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 const char* day_str[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 typedef struct SensorData{
@@ -149,9 +147,7 @@ int rtc_task(){
 	}
 
 	rtc_get_datetime(&t);
-
 	day =  ((t.hour > 8) && (t.hour < 20)) ? true: false;
-
 	display.update_time = true;
 	return 0;
 }

@@ -17,10 +17,6 @@ uint8_t generate_crc(const uint8_t* data, uint16_t count) {
 	return crc; 
 }
 
-
-const int addr = 0x62;
-const int rxbuflen = 16;
-
 int get_feature(SCD40CMD cmd, uint8_t len, uint8_t* rxbuf){
     int ret;
     uint8_t txdata[2];
@@ -29,8 +25,7 @@ int get_feature(SCD40CMD cmd, uint8_t len, uint8_t* rxbuf){
     txdata[1] = (uint8_t)(cmd);
 
     ret = i2c_write_blocking(i2c_default, addr,txdata, 2, true);
-    ret = i2c_read_blocking(i2c_default, addr, rxbuf, len,false);
-    return ret;
+    return i2c_read_blocking(i2c_default, addr, rxbuf, len,false);
 }
 
 int set_feature(SCD40CMD cmd, uint16_t value ){
@@ -43,9 +38,7 @@ int set_feature(SCD40CMD cmd, uint16_t value ){
     txdata[3] = (uint8_t)(value);
     crc = generate_crc(txdata + 2, 2);
     txdata[4] = (uint8_t)(crc);
-    // printf("%d %d %d\n", txdata[2], txdata[3], txdata[4]);
-    ret = i2c_write_blocking(i2c_default, addr, txdata, 5, true);
-    return ret;
+    return i2c_write_blocking(i2c_default, addr, txdata, 5, true);
 }
 uint8_t send_cmd(SCD40CMD cmd){
     uint8_t txdata[2];

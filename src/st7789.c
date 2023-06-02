@@ -8,27 +8,19 @@ const int blk = 15;
 
 void init_gpio(){
 	gpio_set_function(blk, GPIO_FUNC_PWM);
-	// gpio_set_function(LED_PIN, GPIO_FUNC_PWM);
 
     uint sliceNum = pwm_gpio_to_slice_num(blk);
     pwm_config config = pwm_get_default_config();
     pwm_init(sliceNum, &config, true);
-	
-	
-	// Set the PWM running
-	// pwm_set_enabled(slice_num, true);
 
 	gpio_init(dc);
 	gpio_init(rst);
-	//gpio_init(blk);
 
 	gpio_set_dir(rst, GPIO_OUT);
 	gpio_set_dir(dc, GPIO_OUT);
-	//gpio_set_dir(blk, GPIO_OUT);
 
 	gpio_put(rst, 1);
 	gpio_put(dc, 0);
-	//gpio_put(blk, 1);
 	pwm_set_gpio_level(blk, 0x7fff);
 }
 
@@ -81,21 +73,6 @@ static void send_cmd(uint8_t cmd) {
 	gpio_put(dc, 0);
 	sleep_us(1);
 }
-
-
-typedef enum CMD{
-	SWRESET     = 0x01,
-	INVON = 0x21,
-	INVOFF = 0x20,
-	SLPOUT = 0x11,
-	DISPON = 0x29,
-	CASET = 0x2a,
-	RASET = 0x2b,
-	TEON = 0x35,
-	MADCTL = 0x36,
-	COLMOD = 0x3A,
-	RAMWR = 0x2c
-} CMD;
 
 void lcd_reset(){
 	gpio_put(rst, 1); sleep_ms(100);
@@ -192,39 +169,11 @@ static void render_font(uint16_t* img, int k, int x , int y , uint16_t color, in
 		}
 	}
 }
-#if 0
-int write_character(uint16_t x, uint16_t y, uint16_t number)
-{
-	uint8_t w = 25;
-	uint8_t h = 45;
-	uint32_t idx = 0;
-	uint16_t color = 0;
-	for(int j = 0; j < w * h; j++){
-		//xf = j / 25;
-		//yf = j % 25;
-		idx = (y + (j / 25)) * FRMWIDTH + (x + (j % 25));
-		color = color565(255 - digits[number][j], 255 - digits[number][j], 255 - digits[number][j]);
-		FRMBUF[idx] = color;
-	}
-}
-#endif
+
 int update_display(){
 	return write_buffer(RAMWR, (uint8_t*) FRMBUF, sizeof(FRMBUF));
 }
 
-int write_number(uint16_t x, uint16_t y, uint16_t number){
-	int cnt = 0;
-	int dig = 1;
-	uint8_t w0 = 5 * 25;
-	while (number > 0){
-		dig = number % 10;
-		number /= 10;
-		write_character(x + w0, y, dig);
-		w0 -= 25;
-	}
-	return 0;
-
-}
 int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds){
 	int idx = 0;
 	int colw = 24 / ds;
