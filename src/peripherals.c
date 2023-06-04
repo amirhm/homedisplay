@@ -1,11 +1,10 @@
 #include "peripherals.h"
 
-#if 0
 
 I2C_MODULE i2c_moudle = {
     .inst=i2c_default, 
-    .sda_pin=24, 
-    .scl_pin=25,
+    .sda_pin=PICO_DEFAULT_I2C_SDA_PIN, // 24 
+    .scl_pin=PICO_DEFAULT_I2C_SCL_PIN, // 25
     .clk_freq_KHz=100
 };
 
@@ -26,15 +25,16 @@ ST7789 st7789 = {
     .reset = 21
 };
 
-int init_i2c(){
-	i2c_init(i2c_moudle.inst, i2c_moudle.clk_freq_KHz * 1000);
-    gpio_set_function(i2c_moudle.sda_pin, GPIO_FUNC_I2C);
-    gpio_set_function(i2c_moudle.scl_pin, GPIO_FUNC_I2C);
-    gpio_pull_up(i2c_moudle.sda_pin);
-    gpio_pull_up(i2c_moudle.scl_pin);
+int init_i2c(I2C_MODULE* instance){
+	i2c_init(instance->inst, instance->clk_freq_KHz * 1000);
+    gpio_set_function(instance->sda_pin, GPIO_FUNC_I2C);
+    gpio_set_function(instance->scl_pin, GPIO_FUNC_I2C);
+    gpio_pull_up(instance->scl_pin);
+    gpio_pull_up(instance->sda_pin);
 	return 0;
 }
 
+#if 0
 int init_spi(){
 	spi_init(spi_default, 24 * 1000000);
 //	gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);

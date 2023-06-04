@@ -56,15 +56,6 @@ DayCnt day_cnt={
 uint16_t rcolor;
 uint16_t gcolor;
 bool rtc_time_updated = false;
-int init_i2c(){
-	i2c_init(i2c_default, 100 * 1000);
-    gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
-    gpio_set_function(PICO_DEFAULT_I2C_SCL_PIN, GPIO_FUNC_I2C);
-    gpio_pull_up(PICO_DEFAULT_I2C_SDA_PIN);
-    gpio_pull_up(PICO_DEFAULT_I2C_SCL_PIN);
-	return 0;
-}
-
 
 int init_spi(){
 	spi_init(spi_default, 24 * 1000 * 1000);
@@ -82,7 +73,7 @@ int init_spi(){
 int init_peripherals(){
 	stdio_init_all();
 	init_spi();
-	init_i2c();
+	init_i2c(&i2c_moudle);
 	init_st7789();
 	rcolor = color565(0xe6,0x39, 0x46);
 	gcolor = color565(34, 179, 34);
