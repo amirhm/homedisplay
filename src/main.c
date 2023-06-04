@@ -57,24 +57,12 @@ uint16_t rcolor;
 uint16_t gcolor;
 bool rtc_time_updated = false;
 
-int init_spi(){
-	spi_init(spi_default, 24 * 1000 * 1000);
-//	gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
-	gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
-	gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
-	// Chip select is active-low, so we'll initialise it to a driven-high state
-	gpio_init(PICO_DEFAULT_SPI_CSN_PIN);
-	gpio_set_dir(PICO_DEFAULT_SPI_CSN_PIN, GPIO_OUT);
-	gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 1);
-	spi_set_format(spi_default, 8, SPI_CPOL_0, SPI_CPHA_0, SPI_MSB_FIRST);
-	return 0;
-}
 
 int init_peripherals(){
 	stdio_init_all();
-	init_spi();
+	init_spi(&spi_module);
 	init_i2c(&i2c_moudle);
-	init_st7789();
+	init_st7789(&st7789);
 	rcolor = color565(0xe6,0x39, 0x46);
 	gcolor = color565(34, 179, 34);
 	dcfg.day_background=color565(220, 220, 220);
@@ -90,7 +78,6 @@ int init_sensors(){
 	uint16_t alt = 0;
 	uint32_t serial;
 	uint16_t status;
-	int i = 0;
 	stop_measurements();
 	get_serial_number(&serial);
 	get_sensor_altitude(&alt);
@@ -200,7 +187,6 @@ int main(){
 	init_sensors();
 	init_wifi();
 	init_rtc();
-	fill_display(color565(0, 0, 0));
 	ntp_task();
 	while (true){
 		sensor_task();
