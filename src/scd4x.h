@@ -1,3 +1,6 @@
+#ifndef _SCD4X_H
+#define _SCD4X_H
+
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
@@ -5,8 +8,7 @@
 #define CRC8_INIT 0xFF
 
 
-const int addr = 0x62;
-const int rxbuflen = 16;
+
 
 uint8_t generate_crc(const uint8_t* data, uint16_t count);
 
@@ -41,3 +43,4 @@ typedef enum SCD40CMD{
   cmd_measure_single_shot = 0x219d ,
   cmd_measure_single_shot_rht_only = 0x2196, 
 } SCD40CMD;
+#endif

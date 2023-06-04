@@ -1,5 +1,7 @@
 #include "scd4x.h"
 
+const int addr = 0x62;
+const int rxbuflen = 16;
 
 uint8_t generate_crc(const uint8_t* data, uint16_t count) {
 	uint16_t current_byte;

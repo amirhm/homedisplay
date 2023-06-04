@@ -1,4 +1,6 @@
 
+#ifndef _ST7789_H
+#define _ST7789_H
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
@@ -44,3 +46,4 @@ int update_display();
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
 int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds);
 int display_brightness(int value);
+#endif

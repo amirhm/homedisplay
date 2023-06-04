@@ -5,10 +5,15 @@ add_executable(test
   ntp_client.c
 )
 
+set(WIFI_SSID $ENV{WIFI_SSID})
+set(WIFI_PASSWORD $ENV{WIFI_PASSWORD})
+
 target_compile_definitions(test PRIVATE
         WIFI_SSID=\"${WIFI_SSID}\"
         WIFI_PASSWORD=\"${WIFI_PASSWORD}\"
         )
+message("WIFI SSID is: ${WIFI_SSID}")
+
 target_include_directories(test PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts

@@ -1,3 +1,5 @@
+#ifndef _NTP_CLIENT_H
+#define _NTP_CLIENT_H
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
 
@@ -15,3 +17,4 @@ void run_ntp_test(void) ;
 
 extern bool time_updated;
 extern time_t utc_time;
+#endif
