@@ -103,7 +103,7 @@ int init_display(){
 }
 
 
-uint16_t color565(uint8_t r, uint8_t g, uint8_t b){
+static uint16_t color565(uint8_t r, uint8_t g, uint8_t b){
 	return (((g & 0x1c) << 3) + (b & 0xf8 ) << 5) + (((r & 0xf8)) + ((g & 0xe0) >> 5));
 }
 int fill_display(uint16_t color){

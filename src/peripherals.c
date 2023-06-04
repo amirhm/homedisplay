@@ -72,3 +72,11 @@ int init_st7789(ST7789* inst){
 	gpio_put(inst->dc, 0);
 	pwm_set_gpio_level(inst->blk, 0x7fff);
 }
+
+int init_peripherals(){
+	stdio_init_all();
+	init_spi(&spi_module);
+	init_i2c(&i2c_moudle);
+	init_st7789(&st7789);
+	return 0;
+}

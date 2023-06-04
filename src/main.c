@@ -1,52 +1,14 @@
 #include <stdio.h>
-
 #include "pico/stdlib.h"
-#include "hardware/gpio.h"
-#include "hardware/adc.h"
-#include "hardware/pwm.h"
-#include "hardware/spi.h"
-#include "hardware/i2c.h"
-#include "pico/binary_info.h"
-#include "hardware/rtc.h"
 #include "pico/util/datetime.h"
 #include "scd4x.h"
-#include "st7789.h"
 #include "ntp_client.h"
+#include "st7789.h"
 #include "peripherals.h"
+#include "display.h"
 
 
-#define TIME_START 1673823600
-
-const char* month_str[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-const char* day_str[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-typedef struct SensorData{
-	uint16_t co2_raw;
-	uint16_t temperature_raw;
-	uint16_t humidity_raw;
-	float temperature;
-	float humidity;
-} SensorData;
 SensorData weather;
-
-
-typedef struct DisplayConfig{
-	uint16_t day_background;
-	uint16_t day_fontcolor;
-
-	uint16_t day_brightness;
-	uint16_t night_brightness;
-	uint16_t night_background;
-	uint16_t night_fontcolor;
-} DisplayConfig;
-
-DisplayConfig dcfg;
-
-typedef struct DayCnt{
-	int week;
-	int day;
-	time_t start;
-}DayCnt;
-
 DayCnt day_cnt={
 	.day = 0,
 	.week = 0,
@@ -55,24 +17,7 @@ DayCnt day_cnt={
 
 uint16_t rcolor;
 uint16_t gcolor;
-bool rtc_time_updated = false;
 
-
-int init_peripherals(){
-	stdio_init_all();
-	init_spi(&spi_module);
-	init_i2c(&i2c_moudle);
-	init_st7789(&st7789);
-	rcolor = color565(0xe6,0x39, 0x46);
-	gcolor = color565(34, 179, 34);
-	dcfg.day_background=color565(220, 220, 220);
-	dcfg.day_fontcolor=color565(127, 127, 127);
-	dcfg.night_background=color565(0,0,0);
-	dcfg.night_fontcolor=color565(127, 127, 127);
-	dcfg.day_brightness=0xf000;
-	dcfg.night_brightness=0x100;
-	return 0;
-}
 
 int init_sensors(){
 	uint16_t alt = 0;
@@ -140,49 +85,10 @@ int sensor_task(){
 		weather.humidity = (float)(100 * weather.humidity_raw) / (65536.0);
 	}
 }
-static int display_time_update(){
-	char string[20];
-	uint16_t fcolor = (day) ? dcfg.day_fontcolor: dcfg.night_fontcolor;
-
-	struct tm *utc = gmtime(&utc_time);
-	sprintf(string, "  %s %02d %s", day_str[t.dotw], t.day , month_str[t.month - 1]);
-	write_string(display.ML, 6 , string, fcolor, 2);
-	sprintf(string, "      %02d:%02d:%02d", t.hour , t.min, t.sec);
-	write_string(display.ML, 3 , string, fcolor, 2);
-	rtc_time_updated = true;
-
-	sprintf(string, " %02dW %dD ~", day_cnt.week, day_cnt.day);
-	write_string(display.ML, 7 , string, fcolor, 1);
-	display.update_time = false;
-}
-static int display_info_update(){
-	char string[20];
-	uint16_t fcolor = (day) ? dcfg.day_fontcolor: dcfg.night_fontcolor;
-	printf("CO2: %d\n", weather.co2_raw);
-	sprintf(string, "CO2: %d", weather.co2_raw);
-	write_string(display.ML, 3 , string, (weather.co2_raw < 1200)? gcolor: rcolor, 1);
-	sprintf(string, "TMP: %2.1f", weather.temperature);
-	write_string(display.ML, 4 , string, fcolor, 1);
-	sprintf(string, "RH: %2.1f%%", weather.humidity);
-	write_string(display.ML, 5 , string, fcolor, 1);
-	display.update_weather = false;
-}
-static int display_task(){
-	display.update = display.update_weather || display.update_time;
-	if (display.update){
-		fill_display((day) ? dcfg.day_background: dcfg.night_background);
-		display_info_update();
-		display_time_update();
-
-		display_brightness((day) ? dcfg.day_brightness: dcfg.night_brightness);
-
-		update_display();
-		display.update = false;
-	}
-}
 
 int main(){
 	init_peripherals();
+	init_disp();
 	init_display();
 	init_sensors();
 	init_wifi();
@@ -190,7 +96,7 @@ int main(){
 	ntp_task();
 	while (true){
 		sensor_task();
-		display_task();
+		display_task(weather, day_cnt, utc_time, t);
 		counter_task();
 		rtc_task();
 		sleep_ms(1000);

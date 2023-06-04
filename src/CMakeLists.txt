@@ -4,6 +4,7 @@ add_executable(test
   scd4x.c
   st7789.c
   ntp_client.c
+  display.c
 )
 
 set(WIFI_SSID $ENV{WIFI_SSID})
