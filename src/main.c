@@ -12,6 +12,7 @@
 #include "scd4x.h"
 #include "st7789.h"
 #include "ntp_client.h"
+#include "peripherals.h"
 
 
 #define TIME_START 1673823600
@@ -43,13 +44,18 @@ DisplayConfig dcfg;
 typedef struct DayCnt{
 	int week;
 	int day;
+	time_t start;
 }DayCnt;
 
-DayCnt day_cnt;
+DayCnt day_cnt={
+	.day = 0,
+	.week = 0,
+	.start = 1673740800
+};
 
 uint16_t rcolor;
 uint16_t gcolor;
-bool rtc_time_updated;
+bool rtc_time_updated = false;
 int init_i2c(){
 	i2c_init(i2c_default, 100 * 1000);
     gpio_set_function(PICO_DEFAULT_I2C_SDA_PIN, GPIO_FUNC_I2C);
@@ -75,9 +81,9 @@ int init_spi(){
 
 int init_peripherals(){
 	stdio_init_all();
-	init_gpio();
 	init_spi();
 	init_i2c();
+	init_st7789();
 	rcolor = color565(0xe6,0x39, 0x46);
 	gcolor = color565(34, 179, 34);
 	dcfg.day_background=color565(220, 220, 220);
@@ -117,7 +123,7 @@ int counter_task(){
 	time_t _utc_time;
 	struct tm utc ={.tm_year=t.year - 1900, .tm_mon=t.month -1, .tm_mday=t.day, .tm_wday=t.dotw, .tm_hour=t.hour, .tm_min=t.min, .tm_sec=t.sec, .tm_isdst=0};
 	_utc_time = mktime(&utc);
-	time_t duration = (_utc_time - 1673740800) / 3600 / 24;
+	time_t duration = (_utc_time - day_cnt.start) / 3600 / 24;
 	day_cnt.week = duration / 7;
 	day_cnt.day = duration % 7;
 }

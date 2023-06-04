@@ -1,29 +1,14 @@
 #include "st7789.h"
+#include "peripherals.h"
 #include "Ubuntu.h"
-
 const int rst = 21;
 const int dc = 20;
 const int blk = 15;
 
 
-void init_gpio(){
-	gpio_set_function(blk, GPIO_FUNC_PWM);
 
-    uint sliceNum = pwm_gpio_to_slice_num(blk);
-    pwm_config config = pwm_get_default_config();
-    pwm_init(sliceNum, &config, true);
 
-	gpio_init(dc);
-	gpio_init(rst);
-
-	gpio_set_dir(rst, GPIO_OUT);
-	gpio_set_dir(dc, GPIO_OUT);
-
-	gpio_put(rst, 1);
-	gpio_put(dc, 0);
-	pwm_set_gpio_level(blk, 0x7fff);
-}
-
+uint16_t FRMBUF[FRMHEIGHT * FRMWIDTH] = {0};
 
 int display_brightness(int value){
 	pwm_set_gpio_level(blk, value);
@@ -80,7 +65,6 @@ void lcd_reset(){
 	gpio_put(rst, 1); sleep_ms(100);
 }
 
-uint16_t FRMBUF[FRMHEIGHT * FRMWIDTH] = {0};
 
 int lcd_set_caset(uint16_t caset_xs, uint16_t caset_xe)
 {

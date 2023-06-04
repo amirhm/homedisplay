@@ -35,7 +35,6 @@ typedef struct DisplayInfo{
 
 DisplayInfo display;
 
-void init_gpio();
 int lcd_set_raset(uint16_t raset_ys, uint16_t raset_ye);
 int lcd_set_caset(uint16_t caset_xs, uint16_t caset_xe);
 int init_display();

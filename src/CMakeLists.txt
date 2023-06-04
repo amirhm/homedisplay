@@ -1,5 +1,6 @@
 add_executable(test
   main.c
+  peripherals.c
   scd4x.c
   st7789.c
   ntp_client.c
