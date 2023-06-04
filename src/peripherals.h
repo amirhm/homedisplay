@@ -38,6 +38,7 @@ extern I2C_MODULE i2c_moudle;
 extern SPI_MODULE spi_module;
 
 int init_i2c();
+int init_rtc();
 int init_st7789();
 int init_peripherals();
 #endif

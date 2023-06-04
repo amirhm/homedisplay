@@ -129,13 +129,6 @@ int counter_task(){
 }
 
 
-int init_rtc(){
-	// Start the RTC
-	rtc_init();
-	rtc_time_updated = false;
-	day_cnt.week = 0;
-	day_cnt.day = 0;
-}
 
 bool day = false;
 int rtc_task(){

@@ -49,14 +49,13 @@ int init_spi(){
 	return 0;
 }
 
-
+#endif
 
 int init_rtc(){
 	// Start the RTC
 	rtc_init();
 }
 
-#endif
 int init_st7789(){
 	int dc = 20;
 	int reset = 21;
