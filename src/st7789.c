@@ -14,6 +14,7 @@ int display_brightness(int value){
 	pwm_set_gpio_level(blk, value);
 	return 0;
 }
+
 static void write_register(uint8_t reg, uint8_t data) {
 	gpio_put(PICO_DEFAULT_SPI_CSN_PIN, 0);  // Active low
 	gpio_put(dc, 0);  // Active low
@@ -98,8 +99,6 @@ int init_display(){
 	lcd_set_caset(0, FRMWIDTH);
 	lcd_set_raset(0, FRMHEIGHT);
 	write_register(MADCTL, 0);
-	display.ML = 10;
-	display.LineHeight = 32;
 }
 
 

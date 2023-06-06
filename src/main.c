@@ -7,6 +7,7 @@
 #include "peripherals.h"
 #include "display.h"
 
+extern bool day;
 
 SensorData weather;
 DayCnt day_cnt={
@@ -15,8 +16,6 @@ DayCnt day_cnt={
 	.start = 1673740800
 };
 
-uint16_t rcolor;
-uint16_t gcolor;
 
 
 int init_sensors(){
@@ -53,7 +52,6 @@ int counter_task(){
 
 
 
-bool day = false;
 int rtc_task(){
 	if(time_updated){
 		struct tm *utc = gmtime(&utc_time);

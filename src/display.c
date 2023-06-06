@@ -10,10 +10,14 @@ const char* month_str[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug
 const char* day_str[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 DisplayConfig dcfg;
+DisplayInfo display;
+
 static uint16_t color565(uint8_t r, uint8_t g, uint8_t b){
 	return (((g & 0x1c) << 3) + (b & 0xf8 ) << 5) + (((r & 0xf8)) + ((g & 0xe0) >> 5));
 }
 int init_disp(){
+	display.ML = 10;
+	display.LineHeight = 32;
 	rcolor = color565(0xe6,0x39, 0x46);
 	gcolor = color565(34, 179, 34);
 	dcfg.day_background=color565(220, 220, 220);
