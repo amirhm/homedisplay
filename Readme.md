@@ -6,8 +6,7 @@ Example:
 
 |Normal | Night mode|
 |----|---|
-|<img src=https://github.com/amirhm/homedisplay/assets/2778581/2d6097ac-5de6-4cf4-a783-70737e079d04 width=200/>|<img src=https://github.com/amirhm/homedisplay/assets/2778581/288963a0-8b84-4d55-94e1-1751ed6f6a73 width=200/>|
-
+|<img src=https://github.com/amirhm/homedisplay/assets/2778581/a1f8d635-4c1b-40b3-8faf-a33afd83bae5 width=200/>|<img src=https://github.com/amirhm/homedisplay/assets/2778581/f0dfb161-b109-411b-b4d7-3ef63efb2526 width=200/>|
 
 ## Waht is it?
 
