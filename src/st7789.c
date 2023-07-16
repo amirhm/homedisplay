@@ -105,11 +105,13 @@ int init_display(){
 static uint16_t color565(uint8_t r, uint8_t g, uint8_t b){
 	return (((g & 0x1c) << 3) + (b & 0xf8 ) << 5) + (((r & 0xf8)) + ((g & 0xe0) >> 5));
 }
+
 int fill_display(uint16_t color){
 	for(int j = 0; j < FRMHEIGHT * FRMWIDTH; j++){
 		FRMBUF[j] = color;
 	}
 }
+
 int fill_display_gradient(){
 	uint8_t r = 0;
 	uint8_t b = 0;
@@ -162,7 +164,7 @@ int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds){
 	int colw = 24 / ds;
 	int roww = 32 / ds;
 	while(*string != '\0'){
-		render_font(FRMBUF, (*string++) - 32, colw * idx + x, roww * y, fcolor, ds);
+		render_font(FRMBUF, (*string++) - 32, colw * idx + x, y, fcolor, ds);
 		if(idx++ > (9 * ds)){break;}
 	}
 	return 0;

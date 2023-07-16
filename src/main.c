@@ -7,6 +7,7 @@
 #include "peripherals.h"
 #include "display.h"
 
+
 extern bool day;
 
 SensorData weather;
@@ -15,8 +16,6 @@ DayCnt day_cnt={
 	.week = 0,
 	.start = 1673740800
 };
-
-
 
 int init_sensors(){
 	uint16_t alt = 0;
@@ -50,8 +49,6 @@ int counter_task(){
 	day_cnt.day = duration % 7;
 }
 
-
-
 int rtc_task(){
 	if(time_updated){
 		struct tm *utc = gmtime(&utc_time);
@@ -67,10 +64,11 @@ int rtc_task(){
 	}
 
 	rtc_get_datetime(&t);
-	day =  ((t.hour > 8) && (t.hour < 20)) ? true: false;
+	day =  ((t.hour > 7) && (t.hour < 23)) ? true: false;
 	display.update_time = true;
 	return 0;
 }
+
 int sensor_task(){
 	int status = 0;
 	if (get_status_ready())
