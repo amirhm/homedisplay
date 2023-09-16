@@ -6,9 +6,10 @@ const int dc = 20;
 const int blk = 15;
 
 
-
+#define FRMHEIGHT_S  40
 
 uint16_t FRMBUF[FRMHEIGHT * FRMWIDTH] = {0};
+uint16_t LINE[FRMHEIGHT_S * FRMWIDTH] = {0};
 
 int display_brightness(int value){
 	pwm_set_gpio_level(blk, value);
@@ -178,8 +179,18 @@ static uint16_t color565(uint8_t r, uint8_t g, uint8_t b){
 }
 
 int fill_display(uint16_t color){
-	for(int j = 0; j < FRMHEIGHT * FRMWIDTH; j++){
-		FRMBUF[j] = color;
+	int cnt = FRMHEIGHT / FRMHEIGHT_S;	
+	int pixel_cnt = FRMHEIGHT * FRMWIDTH;
+
+	for(int j = 0; j < FRMHEIGHT_S * FRMWIDTH; j++){
+		LINE[j] = color;
+	}
+
+
+	for(int i = 0; i < cnt; i++){
+		lcd_set_raset(i * FRMHEIGHT_S, (i + 1) * FRMHEIGHT_S - 1);
+		lcd_set_caset(0, FRMWIDTH - 1);
+		write_buffer(RAMWR, (uint8_t*) LINE, sizeof(LINE));
 	}
 }
 
@@ -237,5 +248,22 @@ int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds){
 		render_font(FRMBUF, (*string++) - 32, colw * idx + x, y, fcolor, ds);
 		if(idx++ > (9 * ds)){break;}
 	}
+	return 0;
+}
+
+int write_line(uint16_t line_num, char* string,uint16_t bgcolor, uint16_t fcolor, int ds){
+	int idx = 0;
+	int colw = 24 / ds;
+	int roww = 32 / ds;
+
+	for(int j = 0; j < FRMHEIGHT_S * FRMWIDTH; j++){LINE[j] = bgcolor;}
+	while(*string != '\0'){
+		render_font(LINE, (*string++) - 32, colw * idx , 0, fcolor, ds);
+		if(idx++ > (9 * ds)){break;}
+	}
+
+	lcd_set_raset(line_num * FRMHEIGHT_S, (line_num + 1) * FRMHEIGHT_S - 1);
+	lcd_set_caset(0, FRMWIDTH - 1);
+	write_buffer(RAMWR, (uint8_t*) LINE, sizeof(LINE));
 	return 0;
 }

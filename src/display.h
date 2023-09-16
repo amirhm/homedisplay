@@ -21,6 +21,12 @@ typedef struct DisplayInfo{
 	bool update;
 	int LineHeight;
 	int ML;
+	int CO2;
+	int TEMP;
+	int RH;
+	int TIME;
+	int DATE;
+	int CNT;
 } DisplayInfo;
 
 typedef struct DayCnt{

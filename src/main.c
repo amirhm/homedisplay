@@ -88,7 +88,7 @@ int main(){
 	init_display();
 	init_sensors();
 	// SHOW On Display before waiting for time consuming network task 
-	display_task(weather, day_cnt, utc_time, t);
+	// display_task(weather, day_cnt, utc_time, t);
 	init_wifi();
 	init_rtc();
 	ntp_task();

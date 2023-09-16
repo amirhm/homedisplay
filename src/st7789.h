@@ -9,7 +9,7 @@
 
 #ifdef LARGDISPLAY
 #define FRMWIDTH 320
-#define FRMHEIGHT 300
+#define FRMHEIGHT 480
 #else
 #define FRMWIDTH 240
 #define FRMHEIGHT 300
@@ -38,5 +38,6 @@ int fill_display_gradient();
 int write_character(uint16_t x, uint16_t y, uint16_t color);
 int update_display();
 int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds);
+int write_line(uint16_t line_num, char* string, uint16_t bgcolor, uint16_t fcolor, int ds);
 int display_brightness(int value);
 #endif

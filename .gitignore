@@ -1,1 +1,13 @@
 build/*
+elf2uf2/*
+generated/*
+pioasm/*
+CMakeFiles/*
+src/CMakeFiles/*
+src/elf2uf2/*
+src/*.bin
+src/*.dis
+src/*.map
+src/*.hex
+src/*.uf2
+src/*.elf

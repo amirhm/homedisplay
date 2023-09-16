@@ -3,18 +3,18 @@
 
 I2C_MODULE i2c_moudle = {
     .inst=i2c_default, 
-    .sda_pin=PICO_DEFAULT_I2C_SDA_PIN, // 24 
-    .scl_pin=PICO_DEFAULT_I2C_SCL_PIN, // 25
+    .sda_pin=PICO_DEFAULT_I2C_SDA_PIN, // 4 
+    .scl_pin=PICO_DEFAULT_I2C_SCL_PIN, // 5
     .clk_freq_KHz=100
 };
 
 SPI_MODULE spi_module = {
     .inst=spi_default,
     .clk_freq_MHz = 24,
-    .csn_pin=PICO_DEFAULT_SPI_CSN_PIN,
-    .tx_pin=PICO_DEFAULT_SPI_TX_PIN,
-    .rx_pin=PICO_DEFAULT_SPI_RX_PIN,   
-    .sck_pin=PICO_DEFAULT_SPI_SCK_PIN
+    .csn_pin=PICO_DEFAULT_SPI_CSN_PIN,	//17
+    .tx_pin=PICO_DEFAULT_SPI_TX_PIN, 	//19
+    .rx_pin=PICO_DEFAULT_SPI_RX_PIN,  	// 16
+    .sck_pin=PICO_DEFAULT_SPI_SCK_PIN 	// 18
 };
 
 
@@ -35,7 +35,7 @@ int init_i2c(I2C_MODULE* instance){
 }
 
 int init_spi(SPI_MODULE* instance){
-	spi_init(instance->inst, 24 * 1000000);
+	spi_init(instance->inst, 60 * 1000000);
 //	gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
 	gpio_set_function(instance->tx_pin, GPIO_FUNC_SPI);
 	gpio_set_function(instance->sck_pin, GPIO_FUNC_SPI);
