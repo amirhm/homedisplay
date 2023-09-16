@@ -5,14 +5,21 @@
 #include "hardware/spi.h"
 #include "hardware/pwm.h"
 
+#define LARGDISPLAY
+
+#ifdef LARGDISPLAY
+#define FRMWIDTH 320
+#define FRMHEIGHT 300
+#else
 #define FRMWIDTH 240
 #define FRMHEIGHT 300
-
+#endif
 typedef enum CMD{
 	SWRESET     = 0x01,
 	INVON = 0x21,
 	INVOFF = 0x20,
 	SLPOUT = 0x11,
+	DISPOFF = 0x28,
 	DISPON = 0x29,
 	CASET = 0x2a,
 	RASET = 0x2b,

@@ -88,17 +88,88 @@ int init_display(){
 	lcd_reset();
 	send_cmd(SWRESET);
 	sleep_ms(100);
-	send_cmd(TEON);
-	sleep_ms(1);
-	//set Color mode
-	write_register(COLMOD, 0x05);
-	sleep_ms(1);
-	send_cmd(INVON);
 	send_cmd(SLPOUT);
+	sleep_ms(100);
+
+	send_cmd(DISPOFF);
+
+	write_register(0xF0, 0xc3); //Command Set control                                 
+								//Enable extension command 2 partI
+	
+	write_register(0xF0, 0x96); //Command Set control                                 
+								//Enable extension command 2 partII
+	
+	write_register(0x36, 0x48); //Memory Data Access Control MX, MY, RGB mode                                   
+						//X-Mirror, Top-Left to right-Buttom, RGB  
+
+
+
+	write_register(COLMOD, 0x55);//Interface Pixel Format   //Control interface color format set to 16                                 
+	write_register(0xB4, 0x01); //Column inversion //1-dot inversion 
+    //1-dot inversion
+
+
+
+
+	uint8_t data[] = {
+		0x80,    //Bypass
+		0x02,    //Source Output Scan from S1 to S960, Gate Output scan from G1 to G480, scan cycle=2
+		0x3B    //LCD Drive Line=8*(59+1)
+	};
+
+	write_buffer(0xB6, data, sizeof(data)); //Display Function Control
+
+	uint8_t cntrl_adjuts[]={
+		0x40,
+		0x8A,	
+		0x00,
+		0x00,
+		0x29,    //Source eqaulizing period time= 22.5 us
+		0x19,    //Timing for "Gate start"=25 (Tclk)
+		0xA5,    //Timing for "Gate End"=37 (Tclk), Gate driver EQ function ON
+		0x33
+	};
+	write_buffer(0xE8, cntrl_adjuts, sizeof cntrl_adjuts); //Display Output Ctrl Adjust
+	
+	write_register(0xC1, 0x06); //Power control2                          
+								//VAP(GVDD)=3.85+( vcom+vcom offset), VAN(GVCL)=-3.85+( vcom+vcom offset)
+	 
+	write_register(0xC2, 0xA7); //Power control 3                                      
+								//Source driving current level=low, Gamma driving current level=High
+	 
+	write_register (0xC5, 0x18); 	//VCOM Control
+									//VCOM=0.9
+	sleep_ms(120);
+	
+	//ST7796 Gamma Sequence
+	uint8_t buffer0[] = {
+		0xF0,	0x09,	0x0b,	0x06,	0x04,	0x15,	0x2F, 
+		0x54,	0x42,	0x3C,	0x17,	0x14,	0x18,	0x1B
+		};	 
+	write_buffer(0xE0, buffer0, sizeof(buffer0));
+
+	uint8_t buffer1[] = {
+		0xE0,	0x09,	0x0B,	0x06,	0x04,	0x03,	0x2B,
+		0x43,	0x42,	0x3B,	0x16,	0x14,	0x17,	0x1B
+	};
+	
+	write_buffer(0xE1, buffer0, sizeof(buffer1)); //Gamma"-"                                             
+	sleep_ms(120);
+	
+	write_register(0xF0, 0x3C); //Command Set control                                 
+								//Disable extension command 2 partI
+
+	write_register(0xF0, 0x69); //Command Set control                                 
+								//Disable extension command 2 partII
+
+
+	lcd_set_caset(0, FRMWIDTH - 1);
+	lcd_set_raset(0, FRMHEIGHT - 1);
+	// write_register(MADCTL, 0x18);
+
+	send_cmd(SLPOUT);
+	sleep_ms(150);
 	send_cmd(DISPON);
-	lcd_set_caset(0, FRMWIDTH);
-	lcd_set_raset(0, FRMHEIGHT);
-	write_register(MADCTL, 0);
 }
 
 
@@ -129,7 +200,6 @@ int fill_display_gradient(){
 	return write_buffer(RAMWR, (uint8_t*) FRMBUF, sizeof(FRMBUF));
 }
 
-extern const unsigned char Ubuntu[9124];
 static void render_font(uint16_t* img, int k, int x , int y , uint16_t color, int ds){
     int offset = 4 + k * 96;
     const int h = 32;
@@ -148,7 +218,7 @@ static void render_font(uint16_t* img, int k, int x , int y , uint16_t color, in
 					// img[(row * 240) + col * 8 + (7 - j) + x] = color;
 					row_s = row / ds;
 					col_s = (col * 8 + (7 - j)) / ds; 
-					img[(row_s * 240) + col_s + x] = color;
+					img[(row_s * FRMWIDTH) + col_s + x] = color;
 				}
 			}
 		}
