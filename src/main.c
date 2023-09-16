@@ -29,14 +29,14 @@ int init_sensors(){
 	start_measurements();
 }
 
-// Start on Friday 5th of June 2020 15:45:00
+// Start on Sunday 16th of Jan 2023 00:00:00
 datetime_t t = {
-		.year  = 2020,
-		.month = 06,
-		.day   = 05,
-		.dotw  = 5, // 0 is Sunday, so 5 is Friday
-		.hour  = 15,
-		.min   = 45,
+		.year  = 2023,
+		.month = 01,
+		.day   = 16,
+		.dotw  = 0, // 0 is Sunday, so 5 is Friday
+		.hour  = 00,
+		.min   = 00,
 		.sec   = 00
 };
 
@@ -87,6 +87,8 @@ int main(){
 	init_disp();
 	init_display();
 	init_sensors();
+	// SHOW On Display before waiting for time consuming network task 
+	display_task(weather, day_cnt, utc_time, t);
 	init_wifi();
 	init_rtc();
 	ntp_task();
