@@ -1,18 +1,11 @@
 #ifndef _ST7789_H
 #define _ST7789_H
 #include <stdio.h>
+#ifndef TEST
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/pwm.h"
-
-#define LARGDISPLAY
-
-#ifdef LARGDISPLAY
-#define FRMWIDTH 320
-#define FRMHEIGHT 480
-#else
-#define FRMWIDTH 240
-#define FRMHEIGHT 300
+#include "peripherals.h"
 #endif
 typedef enum CMD{
 	SWRESET     = 0x01,
@@ -32,12 +25,6 @@ typedef enum CMD{
 
 int lcd_set_raset(uint16_t raset_ys, uint16_t raset_ye);
 int lcd_set_caset(uint16_t caset_xs, uint16_t caset_xe);
-int init_display();
-int fill_display(uint16_t color);
-int fill_display_gradient();
-int write_character(uint16_t x, uint16_t y, uint16_t color);
-int update_display();
-int write_string(uint16_t x, uint16_t y, char* string, uint16_t fcolor, int ds);
-int write_line(uint16_t line_num, char* string, uint16_t bgcolor, uint16_t fcolor, int ds);
 int display_brightness(int value);
+int write_buffer(uint8_t reg, uint8_t* buffer, int len);
 #endif

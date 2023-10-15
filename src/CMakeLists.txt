@@ -5,6 +5,7 @@ add_executable(homeds
   st7789.c
   ntp_client.c
   display.c
+  Ubuntu.c
 )
 
 set(WIFI_SSID $ENV{WIFI_SSID})
